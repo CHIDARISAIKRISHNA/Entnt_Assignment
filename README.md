@@ -87,7 +87,11 @@ Flow:
 3. Mirage writes to Dexie; reads also come from Dexie.
 4. On refresh, the app reads existing Dexie data (no reseed required).
 
-
+## Known Issues
+- Toast notifications could replace basic alerts.
+- Assessment conditional builder UI could provide point-and-click question references instead of manual IDs.
+- More robust slug collision edge cases (e.g., Unicode) could be handled.
+- Accessibility audits on drag handles and focus states would improve UX further.
 
 
 ## Technical Decisions
@@ -95,4 +99,7 @@ Flow:
 - Dexie vs localForage: schema and bulk operations are clearer with Dexie; used for seeding and transactions.
 - DnD library: `react-beautiful-dnd` for accessible drag-and-drop and reorder semantics.
 - Virtualization: `react-window` offers a small API and good performance for large lists.
+
+
+
 
