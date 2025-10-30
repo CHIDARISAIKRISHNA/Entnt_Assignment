@@ -1,4 +1,4 @@
-## Entnt Assignment (Talent Flow
+## Entnt Assignment (Talent Flow)
 
 A mini hiring platform demonstrating jobs, candidates, and assessments flows – implemented fully on the frontend using MirageJS for a fake REST API and Dexie (IndexedDB) for persistence.
 
