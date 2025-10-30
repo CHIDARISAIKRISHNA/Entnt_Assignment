@@ -28,7 +28,27 @@ Notes:
 - react-window (virtualized lists)
 - @faker-js/faker (seed data)
 
+### Project Structure
 
+```
+src/
+  App.jsx                 # App shell + routes
+  main.jsx                # App bootstrap + Mirage server start
+  mirage.js               # Mirage routes, latency, error injection
+  lib/
+    db.js                # Dexie schema, seed, data helpers
+    api.js               # Fetch wrapper to Mirage routes
+  routes/
+    JobsPage.jsx
+    CandidatesPage.jsx
+    CandidateProfile.jsx
+    AssessmentsPage.jsx
+  components/
+    Jobs/...
+    Candidates/...
+    Assessments/...
+    UI/...
+```
 
 ### Features Checklist (as per brief)
 
@@ -116,3 +136,80 @@ The app does not require login. If authentication were required, credentials wou
 
 ---
 If you have questions or need changes for the submission format, open an issue or contact the maintainer.
+
+## Setup (detailed)
+
+Prerequisites:
+- Node.js 18+
+
+Install and run:
+```bash
+npm install
+npm start
+```
+
+Scripts:
+- `npm start`: dev server (Vite)
+- `npm run build`: production build to `dist/`
+- `npm run preview`: preview local production build
+
+Data reset:
+- Open browser devtools → Application/Storage → IndexedDB → delete `talentflow-db` → reload.
+
+## Architecture
+
+Layers:
+- UI components in `components/*` render lists, forms, and DnD interactions.
+- Route containers in `routes/*` own page-level data loading and composition.
+- API client `lib/api.js` is a thin fetch wrapper to Mirage endpoints.
+- Mirage server `mirage.js` simulates network latency/errors and writes through to Dexie.
+- Dexie `lib/db.js` defines schema, seeds data, restores state on refresh, and performs maintenance (de-duplication, ensuring 3× assessments with ≥10 questions).
+
+Flow:
+1. UI calls `lib/api.js`.
+2. Mirage handles the request, waits 200–1200ms, may return a write error (~8%).
+3. Mirage writes to Dexie; reads also come from Dexie.
+4. On refresh, the app reads existing Dexie data (no reseed required).
+
+## Data Model (Dexie tables)
+- `jobs`: `{ id, title, slug, status, tags[], order }`
+- `candidates`: `{ id, name, email, stage, jobId }`
+- `timelines`: `{ id, candidateId, at, action, toStage? }`
+- `notes`: `{ id, candidateId, text, at }`
+- `assessments`: `{ jobId, sections: [{ id, title, questions: [...] }] }`
+- `responses`: `{ id, jobId, candidateId?, payload, submittedAt }`
+
+Assessment question types:
+- `short`, `long`, `single` (options), `multi` (options), `number` (min/max), `file` (stub; filename only)
+- Conditional: `showIf: { questionId, equals }`
+
+## State Management
+- Local component state drives inputs and transient UI.
+- Page-level data fetched on mount via `lib/api.js`.
+- No global state store required; persistence handled by Dexie beneath Mirage.
+
+## Error Handling & Retry
+- Mirage injects ~8% errors on write endpoints (jobs create/edit/reorder, candidate stage changes, notes add, assessment save/submit).
+- UI surfaces failures and performs rollback for optimistic flows (DnD reorder, Kanban moves).
+- Users can retry actions immediately.
+
+## Optimistic Updates & Rollback
+- Jobs reorder (`PATCH /jobs/:id/reorder`): UI updates immediately, reverts on 500.
+- Candidate stage move (`PATCH /candidates/:id`): board moves card instantly; failure restores previous columns.
+
+## Performance Considerations
+- Jobs list paginated server-like (page, pageSize, search, status).
+- Candidates list virtualized with `react-window` (1000+ rows).
+- Minimal re-renders via simple memoization and list virtualization.
+
+## Technical Decisions
+- MirageJS vs MSW: Mirage keeps all routes bundled with the app and simplifies seeding/latency/error injection without a service worker.
+- Dexie vs localForage: schema and bulk operations are clearer with Dexie; used for seeding and transactions.
+- DnD library: `react-beautiful-dnd` for accessible drag-and-drop and reorder semantics.
+- Virtualization: `react-window` offers a small API and good performance for large lists.
+
+## Known Issues / Future Work
+- Toast notifications could replace basic alerts.
+- Assessment conditional builder UI could provide point-and-click question references instead of manual IDs.
+- More robust slug collision edge cases (e.g., Unicode) could be handled.
+- Accessibility audits on drag handles and focus states would improve UX further.
