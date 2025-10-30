@@ -55,7 +55,7 @@ Files: `components/Candidates/*`, `routes/CandidatesPage.jsx`, `routes/Candidate
 Files: `routes/AssessmentsPage.jsx`, `components/Assessments/*`, API in `lib/api.js` → Mirage `GET/PUT/POST /assessments`.
 
 
-## Setup (detailed)
+## Setup
 
 Prerequisites:
 - Node.js 18+
