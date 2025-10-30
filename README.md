@@ -28,27 +28,7 @@ Notes:
 - react-window (virtualized lists)
 - @faker-js/faker (seed data)
 
-### Project Structure
 
-```
-src/
-  App.jsx                 # App shell + routes
-  main.jsx                # App bootstrap + Mirage server start
-  mirage.js               # Mirage routes, latency, error injection
-  lib/
-    db.js                # Dexie schema, seed, data helpers
-    api.js               # Fetch wrapper to Mirage routes
-  routes/
-    JobsPage.jsx
-    CandidatesPage.jsx
-    CandidateProfile.jsx
-    AssessmentsPage.jsx
-  components/
-    Jobs/...
-    Candidates/...
-    Assessments/...
-    UI/...
-```
 
 ### Features Checklist (as per brief)
 
