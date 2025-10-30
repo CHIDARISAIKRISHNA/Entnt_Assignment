@@ -87,7 +87,7 @@ Flow:
 3. Mirage writes to Dexie; reads also come from Dexie.
 4. On refresh, the app reads existing Dexie data (no reseed required).
 
-## Known Issues
+## Issues
 - Toast notifications could replace basic alerts.
 - Assessment conditional builder UI could provide point-and-click question references instead of manual IDs.
 - More robust slug collision edge cases (e.g., Unicode) could be handled.
